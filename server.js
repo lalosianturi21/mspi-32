@@ -9,14 +9,13 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Simpan data sementara di memori (bisa diganti dengan database)
+// Simpan data sementara di memori
 let latestData = {};
 
 // Route untuk menerima data POST dari ESP32
 app.post('/api/data', (req, res) => {
   const { suhu, kelembaban_tanah, nilai_ldr, persentase_cahaya } = req.body;
 
-  // Cek apakah semua data tersedia
   if (
     suhu !== undefined &&
     kelembaban_tanah !== undefined &&
