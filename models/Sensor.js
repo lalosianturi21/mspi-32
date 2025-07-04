@@ -6,7 +6,8 @@ const SensorSchema = new Schema (
     kelembaban_tanah: { type: Number, required: true },
     nilai_ldr: { type: Number, required: true },
     persentase_cahaya: { type: Number, required: true },
-    waktu: { type: Date, default: Date.now }
+    waktu: { type: Date, default: Date.now },
+    status_pompa: { type: String, required: true },
   }
 );
 

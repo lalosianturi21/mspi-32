@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js"
 import sensorRoutes from './routes/sensorRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import tanamanRoutes from './routes/tanamanRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -20,6 +22,8 @@ app.use(cors(corsOption));
 
 // Routes
 app.use('/api/data', sensorRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/tanaman", tanamanRoutes)
 // Start server
 
 

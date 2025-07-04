@@ -11,4 +11,6 @@ router.route("/")
 router.route("/all")
     .get(getAllData);
 
+
+
 export default router;
