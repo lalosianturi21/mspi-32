@@ -1,4 +1,4 @@
-const SensorData = require('../models/SensorData');
+const SensorData = require('../model/sensorData'); // Model untuk data sensor
 
 let latestData = {}; // Simpan data terakhir (opsional)
 
