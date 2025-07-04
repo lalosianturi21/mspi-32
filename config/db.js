@@ -1,16 +1,14 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
+
 
 const connectDB = async () => {
-  try {
-    await mongoose.connect('mongodb+srv://tanikazela:mDbDjoypxlNpqXzX@movie-film.5dkeq.mongodb.net/?retryWrites=true&w=majority&appName=movie-film', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log('✅ MongoDB Connected');
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-  }
-};
+    try {
+        await mongoose.connect(process.env.DB_URI);
+        console.log('Database is connected ...');
+    } catch (error) {
+        console.log(`Error: ${error.message}`);
+        process.exit(1);
+    }
+}
 
-module.exports = connectDB;
+export default connectDB

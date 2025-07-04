@@ -1,4 +1,4 @@
-const SensorData = require('../model/sensorData'); // Model untuk data sensor
+import Sensor from "../models/Sensor.js"
 
 let latestData = {}; // Simpan data terakhir (opsional)
 
@@ -19,7 +19,7 @@ const postSensorData = async (req, res) => {
     };
 
     try {
-      await SensorData.create(latestData);
+      await Sensor.create(latestData);
       console.log('✅ Data disimpan:', latestData);
       res.status(200).json({ message: 'Data berhasil disimpan' });
     } catch (error) {
@@ -37,14 +37,15 @@ const getLatestData = (req, res) => {
 
 const getAllData = async (req, res) => {
   try {
-    const data = await SensorData.find().sort({ waktu: -1 });
+    const data = await Sensor.find().sort({ waktu: -1 });
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: 'Gagal mengambil data' });
   }
 };
 
-module.exports = {
+
+export {
   postSensorData,
   getLatestData,
   getAllData

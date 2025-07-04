@@ -1,25 +1,30 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const connectDB = require('./config/db');
-const sensorController = require('./controllers/sensorController');
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js"
+import sensorRoutes from './routes/sensorRoutes.js';
 
-const app = express();
-const port = 3000;
-
-// Connect to MongoDB
+dotenv.config();
 connectDB();
 
 // Middleware
-app.use(cors());
+const app = express();
 app.use(bodyParser.json());
+app.use(express.json());
+
+const corsOption = {
+    exposedHeaders: "*",
+};
+
+app.use(cors(corsOption));
 
 // Routes
-app.post('/api/data', sensorController.postSensorData);
-app.get('/api/data', sensorController.getLatestData);
-app.get('/api/data/all', sensorController.getAllData);
-
+app.use('/api/data', sensorRoutes);
 // Start server
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
-});
+
+
+const PORT  = process.env.PORT || 5551;
+
+
+app.listen(PORT, () => console.log(`Server is Running on port ${PORT}`))
