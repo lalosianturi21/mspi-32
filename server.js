@@ -14,12 +14,24 @@ let latestData = {};
 
 // Route untuk menerima data POST dari ESP32
 app.post('/api/data', (req, res) => {
-  const { temperature, humidity } = req.body;
+  const { suhu, kelembaban_tanah, nilai_ldr, persentase_cahaya } = req.body;
 
-  if (temperature !== undefined && humidity !== undefined) {
-    latestData = { temperature, humidity, time: new Date() };
+  // Cek apakah semua data tersedia
+  if (
+    suhu !== undefined &&
+    kelembaban_tanah !== undefined &&
+    nilai_ldr !== undefined &&
+    persentase_cahaya !== undefined
+  ) {
+    latestData = {
+      suhu,
+      kelembaban_tanah,
+      nilai_ldr,
+      persentase_cahaya,
+      waktu: new Date().toISOString()
+    };
     console.log('Data diterima dari ESP32:', latestData);
-    res.status(200).json({ message: 'Data diterima' });
+    res.status(200).json({ message: 'Data berhasil diterima' });
   } else {
     res.status(400).json({ message: 'Data tidak lengkap' });
   }
