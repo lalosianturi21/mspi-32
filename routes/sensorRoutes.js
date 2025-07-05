@@ -1,7 +1,7 @@
 import express from 'express';
 
 const router = express.Router();
-import { getAllData, getLatestData, postSensorData } from "../controllers/sensorController.js";
+import { getAllData, getAllSensorData, getLatestData, postSensorData } from "../controllers/sensorController.js";
 
 
 router.route("/")
@@ -11,6 +11,7 @@ router.route("/")
 router.route("/all")
     .get(getAllData);
 
-
+router.route("/allsensor")
+    .get(getAllSensorData)
 
 export default router;
