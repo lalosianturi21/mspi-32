@@ -40,9 +40,28 @@ const postSensorData = async (req, res) => {
 };
 
 
-const getLatestData = (req, res) => {
-  res.json(latestData);
+const getLatestData = async (req, res) => {
+  try {
+    const latest = await Sensor.findOne().sort({ waktu: -1 });
+
+    if (!latest) {
+      return res.status(404).json({ message: 'Data tidak ditemukan' });
+    }
+
+    res.json({
+      suhu: latest.suhu ?? null,
+      kelembaban_tanah: latest.kelembaban_tanah,
+      nilai_ldr: latest.nilai_ldr,
+      persentase_cahaya: latest.persentase_cahaya,
+      status_pompa: latest.status_pompa,
+      waktu: latest.waktu
+    });
+  } catch (error) {
+    console.error("❌ Error getLatestData:", error);
+    res.status(500).json({ message: 'Gagal mengambil data' });
+  }
 };
+
 
 const getAllData = async (req, res, next) => {
   try {
