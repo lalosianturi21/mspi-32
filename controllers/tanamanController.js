@@ -125,10 +125,22 @@ const deleteTanaman = async (req, res, next) => {
 }
 
 
+const getAllTanamanData = async (req, res, next) => {
+  try {
+    const data = await Tanaman.find().sort({ updatedAt: -1 }); // Urutkan dari yang terbaru
+    res.json(data);
+  } catch (error) {
+    console.error("❌ Gagal mengambil semua data tanaman:", error);
+    res.status(500).json({ message: "Gagal mengambil data tanaman" });
+  }
+};
+
+
 export {
     createTanaman,
     getAllTanaman,
     updateTanaman,
     deleteTanaman,
     getSingleTanaman,
+    getAllTanamanData
 }
