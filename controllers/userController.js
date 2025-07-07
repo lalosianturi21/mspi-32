@@ -81,14 +81,6 @@ const updateProfile = async (req, res, next) => {
   try {
     const userIdToUpdate = req.params.userId;
 
-    let userId = req.user._id;
-
-    if (!req.user.admin && userId !== userIdToUpdate) {
-      let error = new Error("Forbidden resource");
-      error.statusCode = 403;
-      throw error;
-    }
-
     let user = await User.findById(userIdToUpdate);
 
     if (!user) {
@@ -120,7 +112,6 @@ const updateProfile = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const getAllUsers = async (req, res, next) => {
   try {
