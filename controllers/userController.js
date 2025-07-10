@@ -22,7 +22,6 @@ const registerUser = async (req, res, next) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      admin: user.admin,
       token: await user.generateJWT(),
     });
   } catch (error) {
@@ -45,7 +44,6 @@ const loginUser = async (req, res, next) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        admin: user.admin,
         token: await user.generateJWT(),
       });
     } else {
@@ -65,7 +63,6 @@ const userProfile = async (req, res, next) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        admin: user.admin,
       });
     } else {
       let error = new Error("User not found");
@@ -87,10 +84,6 @@ const updateProfile = async (req, res, next) => {
       throw new Error("User not found");
     }
 
-    if (typeof req.body.admin !== "undefined" && req.user.admin) {
-      user.admin = req.body.admin;
-    }
-
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
     if (req.body.password && req.body.password.length < 6) {
@@ -105,7 +98,6 @@ const updateProfile = async (req, res, next) => {
       _id: updatedUserProfile._id,
       name: updatedUserProfile.name,
       email: updatedUserProfile.email,
-      admin: updatedUserProfile.admin,
       token: await updatedUserProfile.generateJWT(),
     });
   } catch (error) {
@@ -150,7 +142,21 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.userId);
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await user.deleteOne(); // atau user.remove()
+
+    return res.status(204).end(); // 204 = No Content
+  } catch (error) {
+    next(error);
+  }
+};
 
 
 export {
@@ -159,4 +165,5 @@ export {
   userProfile,
   updateProfile,
   getAllUsers,
+  deleteUser
 };

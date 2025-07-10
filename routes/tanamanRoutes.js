@@ -1,12 +1,12 @@
 import express from "express";
 const router = express.Router();
-import { adminGuard, authGuard } from "../middleware/authMiddleware.js";
+import { authGuard } from "../middleware/authMiddleware.js";
 import { createTanaman, deleteTanaman, getAllTanaman, getAllTanamanData, getSingleTanaman, updateTanaman } from "../controllers/tanamanController.js";
 
 
 router
     .route("/")
-    .post(authGuard, adminGuard, createTanaman)
+    .post(authGuard, createTanaman)
     .get(getAllTanaman);
 
 router
@@ -16,7 +16,7 @@ router
 router
     .route("/:tanamanId")
     .get(getSingleTanaman)
-    .put(authGuard, adminGuard, updateTanaman)
-    .delete(authGuard, adminGuard, deleteTanaman);
+    .put(authGuard, updateTanaman)
+    .delete(authGuard, deleteTanaman);
 
 export default router;
