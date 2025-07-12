@@ -50,50 +50,63 @@ const generatePDFReport = async (req, res) => {
     res.setHeader("Content-Disposition", "inline; filename=sensor-report.pdf");
     doc.pipe(res);
 
-    // Judul
-    doc.fontSize(16).text("Laporan Data Sensor", { align: "center" });
-    doc.moveDown(1);
+    // === HEADER ===
+    doc
+      .fontSize(20)
+      .font("Helvetica-Bold")
+      .text("Laporan Data Sensor Tanaman", { align: "center" });
 
-    // Kolom tabel
+    doc
+      .moveDown(0.5)
+      .fontSize(12)
+      .font("Helvetica-Oblique")
+      .text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID")}`, { align: "center" })
+      .moveDown(1);
+
+    // === TABEL ===
     const columns = [
       { label: "Tanggal", width: 100 },
       { label: "Suhu", width: 60 },
       { label: "Kelembapan", width: 100 },
       { label: "Cahaya", width: 100 },
-      { label: "Pompa", width: 80 }
+      { label: "Pompa", width: 80 },
     ];
 
-    const rowHeight = 20;
-    const startX = 40;
+    const rowHeight = 25;
+    const tableWidth = columns.reduce((sum, col) => sum + col.width, 0); // Total lebar tabel
+    const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+    const startX = doc.page.margins.left + (pageWidth - tableWidth) / 2; // Posisi X agar tengah
     let y = doc.y;
 
-    // Fungsi menggambar header tabel
     const drawTableHeader = () => {
       let x = startX;
-      doc.font("Helvetica-Bold").fontSize(10);
+      doc.font("Helvetica-Bold").fontSize(10).fillColor("black");
+
       columns.forEach(col => {
-        doc.rect(x, y, col.width, rowHeight)
-           .fillAndStroke('#eeeeee', '#000000');
-        doc.fillColor('#000000').text(col.label, x + 5, y + 5);
+        doc
+          .rect(x, y, col.width, rowHeight)
+          .fillAndStroke('#d3d3d3', '#000'); // abu-abu terang
+        doc
+          .fillColor('black')
+          .text(col.label, x + 5, y + 7, { width: col.width - 10, align: "center" });
         x += col.width;
       });
+
       y += rowHeight;
-      doc.font("Helvetica");
+      doc.font("Helvetica").fillColor("black");
     };
 
-    drawTableHeader(); // header pertama
+    drawTableHeader();
 
-    // Loop data baris demi baris
     data.forEach(item => {
-      // Cek jika baris akan melewati batas halaman
-      if (y + rowHeight > doc.page.height - doc.page.margins.bottom) {
+      if (y + rowHeight > doc.page.height - doc.page.margins.bottom - 30) {
         doc.addPage();
         y = doc.page.margins.top;
-        drawTableHeader(); // header di halaman baru
+        drawTableHeader();
       }
 
       const date = new Date(item.waktu).toLocaleDateString("id-ID", {
-        day: "2-digit", month: "short", year: "numeric",
+        day: "2-digit", month: "short", year: "numeric"
       });
 
       const row = [
@@ -101,25 +114,45 @@ const generatePDFReport = async (req, res) => {
         `${item.suhu?.toFixed(1) ?? "-"} °C`,
         `${item.kelembaban_tanah} %`,
         `${item.persentase_cahaya} %`,
-        item.status_pompa?.toUpperCase()
+        item.status_pompa?.toUpperCase() ?? "-",
       ];
 
       let x = startX;
       row.forEach((val, i) => {
         doc.rect(x, y, columns[i].width, rowHeight).stroke();
-        doc.fillColor('#000000').text(val, x + 5, y + 5);
+        doc
+          .fillColor("black")
+          .fontSize(10)
+          .text(val, x + 5, y + 7, { width: columns[i].width - 10, align: "center" });
         x += columns[i].width;
       });
 
       y += rowHeight;
     });
 
+    // === FOOTER ===
+    const addFooter = () => {
+      const range = doc.bufferedPageRange();
+      for (let i = 0; i < range.count; i++) {
+        doc.switchToPage(i);
+        doc
+          .fontSize(8)
+          .fillColor("gray")
+          .text(`Halaman ${i + 1} dari ${range.count}`, 40, doc.page.height - 30, {
+            align: "center",
+            width: doc.page.width - 80,
+          });
+      }
+    };
+
     doc.end();
+    doc.on("end", addFooter);
   } catch (err) {
     console.error("❌ Gagal membuat PDF:", err);
     res.status(500).json({ message: "Gagal membuat PDF" });
   }
 };
+
 
 
 const getLatestData = (req, res) => {
