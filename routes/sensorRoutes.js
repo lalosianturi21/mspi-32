@@ -1,7 +1,7 @@
 import express from 'express';
 
 const router = express.Router();
-import { getAllData, getAllSensorData, getLatestData, postSensorData } from "../controllers/sensorController.js";
+import { generatePDFReport, getAllData, getAllSensorData, getLatestData, postSensorData } from "../controllers/sensorController.js";
 import { authGuard } from '../middleware/authMiddleware.js';
 
 
@@ -14,5 +14,8 @@ router.route("/all")
 
 router.route("/allsensor")
     .get(authGuard,getAllSensorData)
+
+router.route("/report")
+    .get(authGuard, generatePDFReport)
 
 export default router;

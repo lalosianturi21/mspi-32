@@ -1,4 +1,6 @@
 import Sensor from "../models/Sensor.js"
+import PDFDocument from 'pdfkit';
+
 
 let latestData = {}; // Simpan data terakhir (opsional)
 
@@ -36,6 +38,86 @@ const postSensorData = async (req, res) => {
     }
   } else {
     res.status(400).json({ message: "Data tidak lengkap" });
+  }
+};
+
+const generatePDFReport = async (req, res) => {
+  try {
+    const data = await Sensor.find().sort({ waktu: -1 });
+
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=sensor-report.pdf");
+    doc.pipe(res);
+
+    // Judul
+    doc.fontSize(16).text("Laporan Data Sensor", { align: "center" });
+    doc.moveDown(1);
+
+    // Kolom tabel
+    const columns = [
+      { label: "Tanggal", width: 100 },
+      { label: "Suhu", width: 60 },
+      { label: "Kelembapan", width: 100 },
+      { label: "Cahaya", width: 100 },
+      { label: "Pompa", width: 80 }
+    ];
+
+    const rowHeight = 20;
+    const startX = 40;
+    let y = doc.y;
+
+    // Fungsi menggambar header tabel
+    const drawTableHeader = () => {
+      let x = startX;
+      doc.font("Helvetica-Bold").fontSize(10);
+      columns.forEach(col => {
+        doc.rect(x, y, col.width, rowHeight)
+           .fillAndStroke('#eeeeee', '#000000');
+        doc.fillColor('#000000').text(col.label, x + 5, y + 5);
+        x += col.width;
+      });
+      y += rowHeight;
+      doc.font("Helvetica");
+    };
+
+    drawTableHeader(); // header pertama
+
+    // Loop data baris demi baris
+    data.forEach(item => {
+      // Cek jika baris akan melewati batas halaman
+      if (y + rowHeight > doc.page.height - doc.page.margins.bottom) {
+        doc.addPage();
+        y = doc.page.margins.top;
+        drawTableHeader(); // header di halaman baru
+      }
+
+      const date = new Date(item.waktu).toLocaleDateString("id-ID", {
+        day: "2-digit", month: "short", year: "numeric",
+      });
+
+      const row = [
+        date,
+        `${item.suhu?.toFixed(1) ?? "-"} °C`,
+        `${item.kelembaban_tanah} %`,
+        `${item.persentase_cahaya} %`,
+        item.status_pompa?.toUpperCase()
+      ];
+
+      let x = startX;
+      row.forEach((val, i) => {
+        doc.rect(x, y, columns[i].width, rowHeight).stroke();
+        doc.fillColor('#000000').text(val, x + 5, y + 5);
+        x += columns[i].width;
+      });
+
+      y += rowHeight;
+    });
+
+    doc.end();
+  } catch (err) {
+    console.error("❌ Gagal membuat PDF:", err);
+    res.status(500).json({ message: "Gagal membuat PDF" });
   }
 };
 
@@ -112,5 +194,6 @@ export {
   postSensorData,
   getLatestData,
   getAllData,
-  getAllSensorData
+  getAllSensorData,
+  generatePDFReport
 };
